@@ -1,0 +1,48 @@
+
+**** 02/03/20 14:01:00 ****** PSpice 17.2.0 (March 2016) ****** ID# 0 ********
+
+ ** Profile: "SCHEMATIC1-AC_Sweep"  [ C:\Users\a0232073\Desktop\GWL_Models\OPA862\AppendScript\OPA862_PSPICE\currentload-pspicefiles\
+
+
+ ****     CIRCUIT DESCRIPTION
+
+
+******************************************************************************
+
+
+
+
+** Creating circuit file "ac_sweep.cir" 
+** WARNING: THIS AUTOMATICALLY GENERATED FILE MAY BE OVERWRITTEN BY SUBSEQUENT SIMULATIONS
+
+*Libraries: 
+* Profile Libraries :
+* Local Libraries :
+.LIB "C:/Users/a0232073/Desktop/GWL_Models/OPA862/AppendScript/users/a0232073/desktop/gwl_models/opa862/appendscript/opa862_a.lib" 
+* From [PSPICE NETLIST] section of C:\SPB_Data\cdssetup\OrCAD_PSpice\17.2.0\PSpice.ini file:
+-----------------------------------------------------------------------------------------------------------------------------------$
+ERROR(ORPSIM-16276): Can't find library
+.lib "C:\Cadence\SPB_17.2\tools\pspice\library\nom.lib" 
+
+*Analysis directives: 
+.OPTIONS ADVCONV
+.PROBE64 V(alias(*)) I(alias(*)) W(alias(*)) D(alias(*)) NOISE(alias(*)) 
+.INC "..\SCHEMATIC1.net" 
+
+
+
+**** INCLUDING SCHEMATIC1.net ****
+* source CURRENTLOAD
+V_V1         VCC 0 2.5Vdc
+V_V2         VEE 0 -2.5Vdc
+R_R1         0 N08643  1k TC=0,0 
+R_R2         OUT- N08643  1k TC=0,0 
+R_R3         OUT+ N12608  1k TC=0,0 
+R_R4         OUT+ OUT-  1k TC=0,0 
+R_R5         N12608 0  1k TC=0,0 
+V_V3         N14019 0 0.1
+X_U1         N14019 N12608 OUT+ OUT- 0 VCC VEE OPA862
+
+**** RESUMING ac_sweep.cir ****
+.END
+
