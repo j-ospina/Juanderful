@@ -1,0 +1,3 @@
+Layer Pairs Export File for PCB: F:\Installation\Git\Juanderful\PCBs\Oscope_Boards\MainBoard.PcbDoc
+LayersSetName=Top_Bot_Thru_Holes|DrillFile=mainboard.txt|DrillLayers=gtl,gbl
+LayersSetName=Top_Bot_Rect_Holes|DrillFile=mainboard-rectholes.txt|DrillLayers=gtl,gbl

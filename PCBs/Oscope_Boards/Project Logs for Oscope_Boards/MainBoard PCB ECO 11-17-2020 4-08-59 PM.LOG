@@ -1,0 +1,6 @@
+Removed Pin From Net: NetName=LCD_CS Pin=P4-13
+Removed Pin From Net: NetName=LCD_CS Pin=U1-38
+Added Pin To Net: NetName=P3.6 Pin=*1-25
+Added Pin To Net: NetName=P3.6 Pin=P4-13
+Added Pin To Net: NetName=P3.6 Pin=U1-38
+Added Net: Name=P3.6

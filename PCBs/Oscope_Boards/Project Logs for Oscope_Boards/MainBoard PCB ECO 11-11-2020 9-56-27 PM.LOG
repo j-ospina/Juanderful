@@ -1,0 +1,6 @@
+Removed Pin From Net: NetName=LCD_SD0 Pin=*1-26
+Added Pin To Net: NetName=LCD_SDO Pin=*1-26
+Added Room: Name=FrontEndCircuit
+Added Room: Name=FrontEndEval
+Added Room: Name=InterfaceBoard
+Added Room: Name=PowerCircuit

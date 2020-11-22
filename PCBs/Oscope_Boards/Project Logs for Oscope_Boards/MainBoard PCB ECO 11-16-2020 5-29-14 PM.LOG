@@ -1,0 +1,14 @@
+Removed Pin From Net: NetName=ADC_Vref- Pin=P5-20
+Removed Pin From Net: NetName=ADC_Vref+ Pin=P5-21
+Removed Pin From Net: NetName=ADC_Vref- Pin=U1-70
+Removed Pin From Net: NetName=ADC_Vref+ Pin=U1-71
+Added Pin To Net: NetName=ADC_Vref- Pin=P5-14
+Added Pin To Net: NetName=ADC_Vref+ Pin=P5-15
+Added Pin To Net: NetName=ADC_Vref- Pin=U1-64
+Added Pin To Net: NetName=ADC_Vref+ Pin=U1-65
+Added Pin To Net: NetName=P5.6 Pin=P5-20
+Added Pin To Net: NetName=P5.6 Pin=U1-70
+Added Net: Name=P5.6
+Added Pin To Net: NetName=P5.7 Pin=P5-21
+Added Pin To Net: NetName=P5.7 Pin=U1-71
+Added Net: Name=P5.7

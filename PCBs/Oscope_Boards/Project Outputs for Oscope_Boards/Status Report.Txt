@@ -1,12 +1,13 @@
 Output: NC Drill Files
 Type  : NC Drill
 From  : Project [Oscope_Boards.PrjPcb]
-   Generated File[EvalBoard.TXT]
-   Generated File[EvalBoard.LDP]
-   Generated File[EvalBoard.DRR]
+   Generated File[MainBoard.TXT]
+   Generated File[MainBoard-RectHoles.TXT]
+   Generated File[MainBoard.LDP]
+   Generated File[MainBoard.DRR]
 
 
-Files Generated   : 3
+Files Generated   : 4
 Documents Printed : 0
 
-Finished Output Generation At 8:44:16 PM On 10/21/2020
+Finished Output Generation At 10:15:29 AM On 11/18/2020

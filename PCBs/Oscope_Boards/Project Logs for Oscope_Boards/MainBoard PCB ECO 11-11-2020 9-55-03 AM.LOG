@@ -1,0 +1,65 @@
+Change Component Footprint: Designator=L1 Old Footprint=0402-A New Footprint=6-0805_N
+Change Component Footprint: Designator=L2 Old Footprint=0402-A New Footprint=6-0805_N
+Change Component Footprint: Designator=L3 Old Footprint=0402-A New Footprint=6-0805_N
+Change Component Footprint: Designator=C1 Old Footprint=RAD-0.3 New Footprint=6-0805_N
+Change Component Footprint: Designator=C2 Old Footprint=RAD-0.3 New Footprint=6-0805_N
+Change Component Footprint: Designator=C3 Old Footprint=RAD-0.3 New Footprint=6-0805_N
+Change Component Footprint: Designator=C4 Old Footprint=RAD-0.3 New Footprint=6-0805_N
+Change Component Footprint: Designator=C5 Old Footprint=RAD-0.3 New Footprint=6-0805_N
+Change Component Footprint: Designator=C6 Old Footprint=RAD-0.3 New Footprint=6-0805_N
+Change Component Footprint: Designator=C7 Old Footprint=RAD-0.3 New Footprint=6-0805_N
+Change Component Footprint: Designator=C8 Old Footprint=RAD-0.3 New Footprint=6-0805_N
+Change Component Footprint: Designator=C9 Old Footprint=RAD-0.3 New Footprint=6-0805_N
+Change Component Footprint: Designator=C15 Old Footprint=RAD-0.3 New Footprint=6-0805_N
+Change Component Footprint: Designator=C16 Old Footprint=RAD-0.3 New Footprint=6-0805_N
+Change Component Footprint: Designator=C17 Old Footprint=RAD-0.3 New Footprint=6-0805_N
+Change Component Footprint: Designator=C18 Old Footprint=RAD-0.3 New Footprint=6-0805_N
+Change Component Footprint: Designator=C19 Old Footprint=RAD-0.3 New Footprint=6-0805_N
+Change Component Footprint: Designator=C20 Old Footprint=RAD-0.3 New Footprint=6-0805_N
+Change Component Footprint: Designator=C21 Old Footprint=RAD-0.3 New Footprint=6-0805_N
+Change Component Footprint: Designator=C22 Old Footprint=RAD-0.3 New Footprint=6-0805_N
+Added Component: Designator=P15(HDR2X10)
+Add component (AddParameter): Name = "LatestRevisionDate"; Value = "17-Jul-2002"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "LatestRevisionNote"; Value = "Re-released for DXP Platform."; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Publisher"; Value = "Altium Limited"; VariantName = "[No Variations]"
+Added Component: Designator=P16(HDR2X10)
+Add component (AddParameter): Name = "LatestRevisionDate"; Value = "17-Jul-2002"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "LatestRevisionNote"; Value = "Re-released for DXP Platform."; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Publisher"; Value = "Altium Limited"; VariantName = "[No Variations]"
+Added Pin To Net: NetName=AVCC1 Pin=P15-1
+Added Pin To Net: NetName=LCD_CS Pin=P15-5
+Added Pin To Net: NetName=HorzZoomUp Pin=P15-6
+Added Pin To Net: NetName=LCD_SCK Pin=P15-7
+Added Pin To Net: NetName=P2.0 Pin=P15-8
+Added Pin To Net: NetName=LCD_RS Pin=P15-9
+Added Pin To Net: NetName=P2.1 Pin=P15-10
+Added Pin To Net: NetName=LCD_SD0 Pin=P15-11
+Added Pin To Net: NetName=HorzZoomDn Pin=P15-12
+Added Pin To Net: NetName=LCD_SDI Pin=P15-13
+Added Pin To Net: NetName=P2.4 Pin=P15-14
+Added Pin To Net: NetName=TP_CS Pin=P15-15
+Added Pin To Net: NetName=P2.5 Pin=P15-16
+Added Pin To Net: NetName=TP_IRQ Pin=P15-17
+Added Pin To Net: NetName=OffsetLevel Pin=P15-18
+Added Pin To Net: NetName=AVSS1 Pin=P15-19
+Added Pin To Net: NetName=-3.3V Pin=P15-20
+Added Pin To Net: NetName=AVCC1 Pin=P16-1
+Added Pin To Net: NetName=+5 Pin=P16-2
+Added Pin To Net: NetName=LCD_CS Pin=P16-5
+Added Pin To Net: NetName=HorzZoomUp Pin=P16-6
+Added Pin To Net: NetName=LCD_SCK Pin=P16-7
+Added Pin To Net: NetName=P2.0 Pin=P16-8
+Added Pin To Net: NetName=LCD_RS Pin=P16-9
+Added Pin To Net: NetName=P2.1 Pin=P16-10
+Added Pin To Net: NetName=LCD_SD0 Pin=P16-11
+Added Pin To Net: NetName=HorzZoomDn Pin=P16-12
+Added Pin To Net: NetName=LCD_SDI Pin=P16-13
+Added Pin To Net: NetName=P2.4 Pin=P16-14
+Added Pin To Net: NetName=TP_CS Pin=P16-15
+Added Pin To Net: NetName=P2.5 Pin=P16-16
+Added Pin To Net: NetName=TP_IRQ Pin=P16-17
+Added Pin To Net: NetName=OffsetLevel Pin=P16-18
+Added Pin To Net: NetName=AVSS1 Pin=P16-19
+Added Pin To Net: NetName=-5 Pin=P16-20
+Added Member To Class: ClassName=InterfaceBoard Member=Component P15 Header 10X2
+Added Member To Class: ClassName=MSP432 Member=Component P16 Header 10X2

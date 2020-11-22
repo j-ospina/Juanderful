@@ -1,0 +1,47 @@
+Removed Pin From Net: NetName=LCD_SD0 Pin=*1-16
+Added Component: Designator=P2(HDR2X10)
+Add component (AddParameter): Name = "LatestRevisionDate"; Value = "17-Jul-2002"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "LatestRevisionNote"; Value = "Re-released for DXP Platform."; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Publisher"; Value = "Altium Limited"; VariantName = "[No Variations]"
+Added Component: Designator=P17(HDR2X10)
+Add component (AddParameter): Name = "LatestRevisionDate"; Value = "17-Jul-2002"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "LatestRevisionNote"; Value = "Re-released for DXP Platform."; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Publisher"; Value = "Altium Limited"; VariantName = "[No Variations]"
+Added Pin To Net: NetName=LCD_SDO Pin=*1-16
+Added Pin To Net: NetName=AVCC1 Pin=P2-1
+Added Pin To Net: NetName=+5 Pin=P2-2
+Added Pin To Net: NetName=LCD_CS Pin=P2-5
+Added Pin To Net: NetName=HorzZoomUp Pin=P2-6
+Added Pin To Net: NetName=LCD_SCK Pin=P2-7
+Added Pin To Net: NetName=P2.0 Pin=P2-8
+Added Pin To Net: NetName=LCD_RS Pin=P2-9
+Added Pin To Net: NetName=P2.1 Pin=P2-10
+Added Pin To Net: NetName=LCD_SD0 Pin=P2-11
+Added Pin To Net: NetName=HorzZoomDn Pin=P2-12
+Added Pin To Net: NetName=LCD_SDI Pin=P2-13
+Added Pin To Net: NetName=P2.4 Pin=P2-14
+Added Pin To Net: NetName=TP_CS Pin=P2-15
+Added Pin To Net: NetName=P2.5 Pin=P2-16
+Added Pin To Net: NetName=TP_IRQ Pin=P2-17
+Added Pin To Net: NetName=OffsetLevel Pin=P2-18
+Added Pin To Net: NetName=AVSS1 Pin=P2-19
+Added Pin To Net: NetName=-5 Pin=P2-20
+Added Pin To Net: NetName=AVCC1 Pin=P17-1
+Added Pin To Net: NetName=LCD_CS Pin=P17-5
+Added Pin To Net: NetName=HorzZoomUp Pin=P17-6
+Added Pin To Net: NetName=LCD_SCK Pin=P17-7
+Added Pin To Net: NetName=P2.0 Pin=P17-8
+Added Pin To Net: NetName=LCD_RS Pin=P17-9
+Added Pin To Net: NetName=P2.1 Pin=P17-10
+Added Pin To Net: NetName=LCD_SD0 Pin=P17-11
+Added Pin To Net: NetName=HorzZoomDn Pin=P17-12
+Added Pin To Net: NetName=LCD_SDI Pin=P17-13
+Added Pin To Net: NetName=P2.4 Pin=P17-14
+Added Pin To Net: NetName=TP_CS Pin=P17-15
+Added Pin To Net: NetName=P2.5 Pin=P17-16
+Added Pin To Net: NetName=TP_IRQ Pin=P17-17
+Added Pin To Net: NetName=OffsetLevel Pin=P17-18
+Added Pin To Net: NetName=AVSS1 Pin=P17-19
+Added Pin To Net: NetName=-3.3V Pin=P17-20
+Added Member To Class: ClassName=MSP432 Member=Component P2 Header 10X2
+Added Member To Class: ClassName=InterfaceBoard Member=Component P17 Header 10X2
