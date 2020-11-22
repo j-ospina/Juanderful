@@ -1,16 +1,7 @@
-/*
- * LCDLib.c
- *
- *  Created on: Mar 2, 2017
- *      Author: Danny
- */
-
-#include <LCD_Drivers_Test.h>
+#include "LCD_Drivers.h"
 #include "msp.h"
 #include "driverlib.h"
 #include "AsciiLib.h"
-
-/************************************  Private Functions  *******************************************/
 
 static void Delay(unsigned long interval)
 {
@@ -64,27 +55,25 @@ static void LCD_reset()
     P10OUT |= BIT0;  // high
 }
 
-/************************************  Private Functions  *******************************************/
+inline void LCD_ResetRamArea(){
+    /* Set area back to span the entire LCD */
+    LCD_WriteReg(HOR_ADDR_START_POS, 0x0000);
+    LCD_WriteReg(HOR_ADDR_END_POS, (MAX_SCREEN_Y - 1));
+    LCD_WriteReg(VERT_ADDR_START_POS, 0x0000);
+    LCD_WriteReg(VERT_ADDR_END_POS, (MAX_SCREEN_X - 1));
+}
 
-
-/************************************  Public Functions  *******************************************/
-
-void LCD_DrawRectangle(int16_t xStart, int16_t xEnd, int16_t yStart, int16_t yEnd, uint16_t Color)
-{
-    // Optimization complexity: O(64 + 2N) Bytes Written
-
-    /* Check special cases for out of bounds */
-    if(xStart < MIN_SCREEN_X | xEnd > MAX_SCREEN_X - 1 | yStart < MIN_SCREEN_Y | yEnd > MAX_SCREEN_Y - 1) return;
+void LCD_DrawHorizontalLine(uint16_t Xstart, uint16_t Xend, uint16_t Ycoordinate, uint16_t color){
+    if( Xend > MAX_SCREEN_X - 1 | Ycoordinate > MAX_SCREEN_Y - 1) return;
 
     /* Set window area for high-speed RAM write */
-    LCD_WriteReg(HOR_ADDR_START_POS, yStart);
-    LCD_WriteReg(HOR_ADDR_END_POS, yEnd);
-    LCD_WriteReg(VERT_ADDR_START_POS, xStart);
-    LCD_WriteReg(VERT_ADDR_END_POS, xEnd);
-
+    LCD_WriteReg(HOR_ADDR_START_POS, Ycoordinate);
+    LCD_WriteReg(HOR_ADDR_END_POS, Ycoordinate);
+    LCD_WriteReg(VERT_ADDR_START_POS, Xstart);
+    LCD_WriteReg(VERT_ADDR_END_POS, Xend);
 
     /* Set cursor */
-    LCD_SetCursor(xStart, yStart);
+    LCD_SetCursor(Xstart, Ycoordinate);
 
     /* Set index to GRAM */
     LCD_WriteIndex(GRAM);
@@ -93,8 +82,61 @@ void LCD_DrawRectangle(int16_t xStart, int16_t xEnd, int16_t yStart, int16_t yEn
     SPI_CS_LOW;
     LCD_Write_Data_Start();
 
-    for(int i = 0; i < (xEnd-xStart+1)*(yEnd-yStart+1); i++){
-        LCD_Write_Data_Only(Color);
+    for(int i = 0; i < Xend - Xstart + 1; i++){
+        LCD_Write_Data_Only(color);
+    }
+    SPI_CS_HIGH;
+}
+
+void LCD_DrawVerticalLine(uint16_t Xcoordinate, uint16_t Ystart, uint16_t Yend, uint16_t color){
+    /* Check special cases for out of bounds */
+    if( Xcoordinate > MAX_SCREEN_X - 1 | Yend > MAX_SCREEN_Y - 1) return;
+
+    /* Set window area for high-speed RAM write */
+    LCD_WriteReg(HOR_ADDR_START_POS, Ystart);
+    LCD_WriteReg(HOR_ADDR_END_POS, Yend);
+    LCD_WriteReg(VERT_ADDR_START_POS, Xcoordinate);
+    LCD_WriteReg(VERT_ADDR_END_POS, Xcoordinate);
+
+
+    /* Set cursor */
+    LCD_SetCursor(Xcoordinate, Ystart);
+
+    /* Set index to GRAM */
+    LCD_WriteIndex(GRAM);
+
+    /* Send out data only to the entire area */
+    SPI_CS_LOW;
+    LCD_Write_Data_Start();
+
+    for(int i = 0; i < Yend - Ystart + 1; i++){
+        LCD_Write_Data_Only(color);
+    }
+    SPI_CS_HIGH;
+}
+
+void LCD_DrawRectangle(uint16_t Xstart, uint16_t Ystart, uint16_t Xend, uint16_t Yend, uint16_t color){
+    /* Check special cases for out of bounds */
+    if( Xend > MAX_SCREEN_X - 1 | Yend > MAX_SCREEN_Y - 1) return;
+
+    /* Set window area for high-speed RAM write */
+    LCD_WriteReg(HOR_ADDR_START_POS, Ystart);
+    LCD_WriteReg(HOR_ADDR_END_POS, Yend);
+    LCD_WriteReg(VERT_ADDR_START_POS, Xstart);
+    LCD_WriteReg(VERT_ADDR_END_POS, Xend);
+
+    /* Set cursor */
+    LCD_SetCursor(Xstart, Ystart);
+
+    /* Set index to GRAM */
+    LCD_WriteIndex(GRAM);
+
+    /* Send out data only to the entire area */
+    SPI_CS_LOW;
+    LCD_Write_Data_Start();
+
+    for(int i = 0; i < (Xend-Xstart+1)*(Yend-Ystart+1); i++){
+        LCD_Write_Data_Only(color);
     }
     SPI_CS_HIGH;
 }
@@ -170,35 +212,75 @@ void LCD_Clear(uint16_t Color)
         LCD_Write_Data_Only(Color);
     }
     SPI_CS_HIGH;
+}
 
-    // You'll need to call LCD_Write_Data_Start() and then send out only data to fill entire screen with color
+static void LCD_DrawLineLoop(uint16_t SweepStart, uint16_t IncStart, uint16_t SweepEnd, uint16_t IncEnd, uint16_t color, void (*DrawFunction)(uint16_t , uint16_t, uint16_t)){
+    int dSweep, dInc, p, Sweep, Inc, SweepStep = 1, IncStep = 1;
+
+    //Get Slope
+    dSweep = SweepEnd - SweepStart;
+    dInc = IncEnd - IncStart;
+
+    Inc = IncStart;
+    Sweep = SweepStart;
+
+    //Account for negative sweeps
+    if(dSweep < 0) {
+        dSweep = -dSweep; SweepStep = -1; uint16_t temp = SweepEnd; SweepEnd = SweepStart; SweepStart = temp;
+    }
+
+    //Account for negative increments
+    if(dInc < 0) {
+        dInc = -dInc; IncStep = -1;
+    }
+
+    //Bresenham's Algorithm
+    p = (dInc - dSweep) << 1;
+    while(Sweep <= SweepEnd && Sweep >= SweepStart){
+        DrawFunction(Sweep, Inc, color);
+        if(p >= 0){
+            Inc += IncStep;
+            p = p + ((dInc - dSweep) << 1);
+        }
+        else{
+            p = p + (dInc << 1);
+        }
+        Sweep += SweepStep;
+    }
 }
 
 void LCD_DrawLine(uint16_t Xstart, uint16_t Ystart, uint16_t Xend, uint16_t Yend, uint16_t color){
-    int dx, dy, p, x, y;
-    if(Xend > MAX_SCREEN_X - 1 |Yend > MAX_SCREEN_Y - 1) return;
+    int dx, dy;
 
+    //Border Check
+    if(Xstart > MAX_SCREEN_X - 1 | Xend > MAX_SCREEN_X - 1 |Yend > MAX_SCREEN_Y - 1 | Ystart > MAX_SCREEN_Y - 1 ) return;
+
+    //Get Magnitude
     dx = Xend - Xstart;
     dy = Yend - Ystart;
 
-    x = Xstart;
-    y = Ystart;
+    //Get Magnitude of Deltas
+    if(dx >= 0 && dy >= 0){}
+    else if(dx >= 0 && dy < 0){
+        dy = -dy;
+    }
+    else if(dx < 0 && dy >= 0){
+        dx = -dx;
+    }
+    else{
+        dx = -dx;
+        dy = -dy;
+    }
 
-    p = (dy - dx) << 1;
-
-    while(x < Xend){
-        if(p >= 0){
-            LCD_SetPoint(x, y, color);
-            y++;
-            p = p + (dy << 1) - (dx << 1);
-        }
-        else{
-            LCD_SetPoint(x, y, color);
-            p = p + (dy << 1);
-        }
-        x++;
+    //Check Magnitudes to determine sweep axis
+    if(dx >= dy){
+        LCD_DrawLineLoop(Xstart,Ystart,Xend,Yend,color,LCD_SetPoint);
+    }
+    else{
+        LCD_DrawLineLoop(Ystart,Xstart,Yend,Xend,color,LCD_SetPointFlip);
     }
 }
+
 
 void LCD_SetPoint(uint16_t Xpos, uint16_t Ypos, uint16_t color)
 {
@@ -210,6 +292,10 @@ void LCD_SetPoint(uint16_t Xpos, uint16_t Ypos, uint16_t color)
 
     /* Write color to GRAM reg */
     LCD_WriteReg(GRAM, color);
+}
+
+void LCD_SetPointFlip(uint16_t Xpos, uint16_t Ypos, uint16_t color){
+    LCD_SetPoint(Ypos, Xpos, color);
 }
 
 inline void LCD_Write_Data_Only(uint16_t data)
@@ -253,11 +339,13 @@ inline void LCD_WriteIndex(uint16_t index)
 
 inline uint8_t SPISendRecvByte (uint8_t byte)
 {
+    DebugToolsUp();
     /* Send byte of data */
     SPI_transmitData(EUSCI_B3_BASE, byte);
 
     /* Wait as long as busy */
     while(SPI_isBusy(EUSCI_B3_BASE));
+    DebugToolsDown();
 
     /* Return received value*/
     return SPI_receiveData(EUSCI_B3_BASE);

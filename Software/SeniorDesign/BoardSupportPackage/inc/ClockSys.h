@@ -9,8 +9,6 @@
 #ifndef CLOCKSYS_H_
 #define CLOCKSYS_H_
 
-#include <stdint.h>
-
 /*
  * Initializes Core Clock to Maximum Frequency with highest accuracy
  * 	Initializes GPIO for HFXT in and out

@@ -5,14 +5,10 @@
  *      Author: Danny
  */
 
-#include <G8RTOS_Lab5/G8RTOS.h>
-#include <LCD_Lib.h>
+#include "LCDLib.h"
 #include "msp.h"
 #include "driverlib.h"
 #include "AsciiLib.h"
-#include <time.h>
-
-
 
 /************************************  Private Functions  *******************************************/
 
@@ -44,25 +40,29 @@ static void LCD_initSPI()
      * P10.4 - LCD CS 
      * P10.5 - TP CS 
      */
-    //USE P10SEL0 and P10SEL1 registers to configue the SPI
-    //UCABRW register for bit rate
-    //UCAxCTLW0
-    //STE(UCB3)
-    EUSCI_B3->CTLW0 = UCSWRST; //Held in reset state for configuration
-
-    //3 pin, 8-bit spi master, high polarity for inactive state, 12MHz, MSB
-    EUSCI_B3->CTLW0 = (UCCKPL | UCMSB |UCMST | UCMODE_0 | UCSYNC | UCSSEL_3);
-    EUSCI_B3->BRW = 3;        //No Prescaler
 
 
-    //Enable port 10 CLK, SIMO, SOMI, P10.4 & P10.5 as outputs
-    P10->SEL0 = 0b00001110;
-    P10->SEL1 = 0b00000000;
-    P10->DIR |= BIT4 | BIT5;
-    P10->OUT |= BIT4 | BIT5;  //Chip select Idle high
+    //Reset the SPI module
+    EUSCI_B3->CTLW0 = UCSWRST;
 
+    //3-Pin mode; Polarity and Phase mode; MSB select; SMCLK clock select;
+    EUSCI_B3->CTLW0 = (UCCKPL | UCMSB | UCMST | UCMODE_0 | UCSYNC | UCSSEL_3);
+
+    //SMCLK at 12MHz, prescalar at 1
+    EUSCI_B3->BRW = 1;
+
+    //Pin function selection
+    P10->SEL0 |= (BIT1 | BIT2 | BIT3);
+    P10->SEL1 &= ~(BIT1 | BIT2 | BIT3);
+
+    //Pin's set to High and Outputs
+    P10->SEL0 &= ~(BIT4|BIT5);
+    P10->SEL1 &= ~(BIT4|BIT5);
+    P10->OUT |= (BIT4 | BIT5);
+    P10->DIR |= (BIT4 | BIT5);
+
+    //SPI Module re-enabled
     EUSCI_B3->CTLW0 &= ~UCSWRST;
-
 }
 
 /*******************************************************************************
@@ -99,40 +99,18 @@ static void LCD_reset()
 void LCD_DrawRectangle(int16_t xStart, int16_t xEnd, int16_t yStart, int16_t yEnd, uint16_t Color)
 {
     // Optimization complexity: O(64 + 2N) Bytes Written 
-    int x, y;
-    x = xEnd - xStart;
-    y = yEnd - yStart;
-
 
     /* Check special cases for out of bounds */
-    //Check higher bounds
-    if(xStart >= MAX_SCREEN_X){
-        xStart = xStart - MAX_SCREEN_X-1;
-        xEnd = xStart + x;
-    }
-    if(yStart >= MAX_SCREEN_Y){
-        yStart = yStart - MAX_SCREEN_Y-1;
-        yEnd = yStart + y;
-    }
-
-    //Check lower bounds
-    if(xStart < 0){
-        xStart = xStart + MAX_SCREEN_X-1;
-        xEnd = xStart + x;
-    }
-    if(yStart < 0){
-        yStart = yStart + MAX_SCREEN_Y-1;
-        yEnd = yStart + y;
-    }
+    if(xStart < MIN_SCREEN_X | xEnd > MAX_SCREEN_X - 1 | yStart < MIN_SCREEN_Y | yEnd > MAX_SCREEN_Y - 1) return;
 
     /* Set window area for high-speed RAM write */
-    LCD_WriteReg(ENTRY_MODE, 0x0030);               //Auto Increment
-    LCD_WriteReg(HOR_ADDR_START_POS, yStart);       /* Horizontal GRAM Start Address */
-    LCD_WriteReg(HOR_ADDR_END_POS, yEnd);           /* Horizontal GRAM End Address */
-    LCD_WriteReg(VERT_ADDR_START_POS, xStart);      /* Vertical GRAM Start Address */
-    LCD_WriteReg(VERT_ADDR_END_POS, xEnd);          /* Vertical GRAM Start Address */
+    LCD_WriteReg(HOR_ADDR_START_POS, yStart);
+    LCD_WriteReg(HOR_ADDR_END_POS, yEnd);
+    LCD_WriteReg(VERT_ADDR_START_POS, xStart);
+    LCD_WriteReg(VERT_ADDR_END_POS, xEnd);
 
-    /* Set cursor */
+
+    /* Set cursor */ 
     LCD_SetCursor(xStart, yStart);
 
     /* Set index to GRAM */ 
@@ -141,11 +119,11 @@ void LCD_DrawRectangle(int16_t xStart, int16_t xEnd, int16_t yStart, int16_t yEn
     /* Send out data only to the entire area */ 
     SPI_CS_LOW;
     LCD_Write_Data_Start();
-    for(int i=0; i<(x*y)-1; i++){
+
+    for(int i = 0; i < (xEnd-xStart+1)*(yEnd-yStart+1); i++){
         LCD_Write_Data_Only(Color);
     }
     SPI_CS_HIGH;
-
 }
 
 /******************************************************************************
@@ -231,13 +209,13 @@ void LCD_Text(uint16_t Xpos, uint16_t Ypos, uint8_t *str, uint16_t Color)
 void LCD_Clear(uint16_t Color)
 {
     /* Set area back to span the entire LCD */
-    LCD_WriteReg(HOR_ADDR_START_POS, 0x0000);     /* Horizontal GRAM Start Address */
-    LCD_WriteReg(HOR_ADDR_END_POS, (MAX_SCREEN_Y - 1));  /* Horizontal GRAM End Address */
-    LCD_WriteReg(VERT_ADDR_START_POS, 0x0000);    /* Vertical GRAM Start Address */
-    LCD_WriteReg(VERT_ADDR_END_POS, (MAX_SCREEN_X - 1)); /* Vertical GRAM Start Address */
+    LCD_WriteReg(HOR_ADDR_START_POS, 0x0000);
+    LCD_WriteReg(HOR_ADDR_END_POS, (MAX_SCREEN_Y - 1));
+    LCD_WriteReg(VERT_ADDR_START_POS, 0x0000);
+    LCD_WriteReg(VERT_ADDR_END_POS, (MAX_SCREEN_X - 1));
     
-    /* Set cursor to (0,0) */
-    LCD_SetCursor(0, 0);
+    /* Set cursor to (0,0) */ 
+    LCD_SetCursor(MIN_SCREEN_X, MIN_SCREEN_Y);
 
     /* Set write index to GRAM */
     LCD_WriteIndex(GRAM);
@@ -245,11 +223,11 @@ void LCD_Clear(uint16_t Color)
     /* Start data transmittion */
     SPI_CS_LOW;
     LCD_Write_Data_Start();
-    for(int i=0; i<(MAX_SCREEN_X*MAX_SCREEN_Y); i++){
+
+    for(int i = 0; i < SCREEN_SIZE; i++){
         LCD_Write_Data_Only(Color);
     }
     SPI_CS_HIGH;
-
 
     // You'll need to call LCD_Write_Data_Start() and then send out only data to fill entire screen with color 
 }
@@ -266,12 +244,7 @@ void LCD_Clear(uint16_t Color)
 void LCD_SetPoint(uint16_t Xpos, uint16_t Ypos, uint16_t color)
 {
     /* Should check for out of bounds */ 
-    if(Xpos > MAX_SCREEN_X){
-        return;
-    }
-    if(Ypos > MAX_SCREEN_Y){
-        return;
-    }
+    if(Xpos > MAX_SCREEN_X - 1 | Ypos > MAX_SCREEN_Y - 1) return;
 
     /* Set cursor to Xpos and Ypos */ 
     LCD_SetCursor(Xpos, Ypos);
@@ -291,11 +264,8 @@ void LCD_SetPoint(uint16_t Xpos, uint16_t Ypos, uint16_t color)
 inline void LCD_Write_Data_Only(uint16_t data)
 {
     /* Send out MSB */ 
-    SPISendRecvByte(data >> 8);
-
-    /* Send out LSB */ 
-    SPISendRecvByte(data);
-
+    SPISendRecvByte((data >> 8));
+    SPISendRecvByte((data & 0xFF));
 }
 
 /*******************************************************************************
@@ -327,15 +297,11 @@ inline void LCD_WriteData(uint16_t data)
  *******************************************************************************/
 inline uint16_t LCD_ReadReg(uint16_t LCD_Reg)
 {
-    uint16_t readData;
-
     /* Write 16-bit Index */
     LCD_WriteIndex(LCD_Reg);
 
     /* Return 16-bit Reg using LCD_ReadData() */
-    readData = LCD_ReadData();
-
-    return readData;
+    return LCD_ReadData();
 }
 
 /*******************************************************************************
@@ -368,17 +334,14 @@ inline void LCD_WriteIndex(uint16_t index)
  *******************************************************************************/
 inline uint8_t SPISendRecvByte (uint8_t byte)
 {
-    uint8_t readData;
     /* Send byte of data */
+    SPI_transmitData(EUSCI_B3_BASE, byte);
 
-    while(!(EUSCI_B3->IFG & 2)); //Wait for transmit buffer empty
-    EUSCI_B3->TXBUF = byte;
+    /* Wait as long as busy */ 
+    while(SPI_isBusy(EUSCI_B3_BASE));
 
-    while(EUSCI_B3->STATW & 1);  //Wait till transmission is done
-
-    readData = EUSCI_B3->RXBUF;
-
-    return readData;
+    /* Return received value*/
+    return SPI_receiveData(EUSCI_B3_BASE);
 }
 
 /*******************************************************************************
@@ -408,12 +371,24 @@ inline uint16_t LCD_ReadData()
     SPI_CS_LOW;
 
     SPISendRecvByte(SPI_START | SPI_RD | SPI_DATA);   /* Read: RS = 1, RW = 1   */
+
     SPISendRecvByte(0);                               /* Dummy read 1           */
+    SPISendRecvByte(0);                               /* Dummy read 1           */
+    SPISendRecvByte(0);                               /* Dummy read 1           */
+    SPISendRecvByte(0);                               /* Dummy read 1           */
+    SPISendRecvByte(0);                               /* Dummy read 1           */
+
     value = (SPISendRecvByte(0) << 8);                /* Read D8..D15           */
     value |= SPISendRecvByte(0);                      /* Read D0..D7            */
 
     SPI_CS_HIGH;
     return value;
+}
+
+uint16_t LCD_ReadPixelColor(uint16_t x, uint16_t y){
+    LCD_SetCursor(x,y);
+    LCD_WriteIndex(GRAM);
+    return LCD_ReadData();
 }
 
 /*******************************************************************************
@@ -432,7 +407,6 @@ inline void LCD_WriteReg(uint16_t LCD_Reg, uint16_t LCD_RegValue)
 
     /* Write 16-bit Reg Data */
     LCD_WriteData(LCD_RegValue);
-
 }
 
 /*******************************************************************************
@@ -470,16 +444,18 @@ void LCD_Init(bool usingTP)
 
     if (usingTP)
     {
-        /* Configure low true interrupt on P4.0 for TP */ 
-        P4->DIR &= ~BIT0; //Set P4.0 as input
-        P4->IFG &= ~BIT0; //IFG cleared
-        P4->IE  |= BIT0;  //Enable interrupt P4.0
-        P4->IES |= BIT0;  //high-to-low transition
+        //Set to GPIO function
+        P4->SEL0 &= ~BIT0;
+        P4->SEL1 &= ~BIT0;
 
-//        P4->REN |= BIT0;  //Pull-up resistor
-//        P4->OUT |= BIT0;  //Set res to pull-up
+        //Set to input
+        P4->DIR &= ~BIT0;
 
-//        NVIC_EnableIRQ(PORT4_IRQn);
+        //High-to-low transition
+        P4->IES |= BIT0;
+
+        //Interrupt Enable
+        P4->IE |= BIT0;
     }
 
     LCD_reset();
@@ -503,7 +479,6 @@ void LCD_Init(bool usingTP)
     LCD_WriteReg(POWER_CONTROL_4, 0x0000); /* VDV[4:0] for VCOM amplitude */
     LCD_WriteReg(DISPLAY_CONTROL_1, 0x0001);
     Delay(200);
-
 
     /* Dis-charge capacitor power voltage */
     LCD_WriteReg(POWER_CONTROL_1, 0x1090); /* SAP, BT[3:0], AP, DSTB, SLP, STB */
@@ -566,46 +541,36 @@ void LCD_Init(bool usingTP)
  *******************************************************************************/
 Point TP_ReadXY()
 {
-    Point readValues;
-    double convX, convY;
-    uint8_t tempX1, tempX2, tempX3, tempY1, tempY2, tempY3;
-    uint16_t tempX, tempY;
+    uint16_t x,y;
+    Point coordinate;
 
+    /* Read X coord. */ 
     SPI_CS_TP_LOW;
-
-    /* Read X coord. */
-    tempX1 = SPISendRecvByte(CHX);   //Set to find X position
-                                     //XP = +IN, +REF = YP, -REF = YN
-    tempX2 = SPISendRecvByte(0x00);  //dummy data;
-    tempX3 = SPISendRecvByte(0x00);  //dummy data;
-
-    tempX = tempX2;
-    tempX = ((tempX << 8) | tempX3);
-    tempX = tempX >> 3;
-
-    convX = 320.0/4096;
-    readValues.x = convX*tempX;
-
-    /* Read Y coord. */
-    tempY1 = SPISendRecvByte(CHY);  //Set to find Y position
-                                    //YP = +IN, +REF = XP, -REF = XN
-    tempY2 = SPISendRecvByte(0x00);  //dummy data;
-    tempY3 = SPISendRecvByte(0x00);  //dummy data;
-    tempY = tempY2;
-    tempY = ((tempY << 8) | tempY3);
-    tempY = tempY >> 3;
-    convY = 240.0/4096;
-
-    readValues.y = convY * tempY;
-
+    SPISendRecvByte(CHX);
+    x = (SPISendRecvByte(0) << 8);
+    x |= SPISendRecvByte(0);
     SPI_CS_TP_HIGH;
 
+
+    /* Read Y coord. */ 
+    SPI_CS_TP_LOW;
+    SPISendRecvByte(CHY);
+    y = (SPISendRecvByte(0) << 8);
+    y |= SPISendRecvByte(0);
+    SPI_CS_TP_HIGH;
+    
+    x = (x >> 4);
+    y = (y >> 4);
+
+    x = (x - 192)*MAX_SCREEN_X; //ADC value * Max number of pixels
+    coordinate.x = (x/1800); //Divided by max ADC value (2^11 = 2048)
+
+    y = (y - 127)*MAX_SCREEN_Y; //ADC value * Max number of pixels
+    coordinate.y = (y/1900); //Divided by max ADC value (2^11 = 2048)
+
     /* Return point  */
-    return readValues;
-
+    return coordinate;
 }
-
-
 
 /************************************  Public Functions  *******************************************/
 

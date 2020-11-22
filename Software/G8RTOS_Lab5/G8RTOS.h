@@ -16,9 +16,9 @@
 #include <time.h>
 #include <stdbool.h>
 #include "demo_sysctl.h"
+#include <string.h>
 #include "msp.h"
 #include "BSP.h"
-#include <string.h>
 
 
 

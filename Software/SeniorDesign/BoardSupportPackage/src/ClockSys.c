@@ -7,10 +7,10 @@
  *      Author: Raz Aloni
  */
 
-#include <ClockSys.h>
 #include <stdint.h>
 #include <driverlib.h>
 
+#include "ClockSys.h"
 
 /********************************** Public Functions **************************************/
 

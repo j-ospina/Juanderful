@@ -1,10 +1,16 @@
-#ifndef LCD_DRIVERS_H_
-#define LCD_DRIVERS_H_
+/*
+ * LCDLib.h
+ *
+ *  Created on: Mar 2, 2017
+ *      Author: Danny
+ */
+
+#ifndef LCDLIB_H_
+#define LCDLIB_H_
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "msp.h"
-#include "spi.h"
+/************************************ Defines *******************************************/
 
 /* Screen size */
 #define MAX_SCREEN_X     320
@@ -23,9 +29,6 @@
 /* CS LCD*/
 #define SPI_CS_LOW P10OUT &= ~BIT4
 #define SPI_CS_HIGH P10OUT |= BIT4
-
-#define LCD_POUT_REGISTER P10OUT
-#define LCD_POUT_PIN GPIO_PIN4
 
 /* CS Touchpanel */
 #define SPI_CS_TP_LOW P10OUT &= ~BIT5
@@ -105,25 +108,220 @@
 #define HORIZONTAL_GRAM_SET                 0x20
 #define VERTICAL_GRAM_SET                   0x21
 
-/*LCD Interface Functions*/
-inline uint8_t SPISendRecvByte(uint8_t byte);
-inline uint16_t LCD_ReadData();
-inline void LCD_WriteReg(uint16_t LCD_Reg, uint16_t LCD_RegValue);
-inline void LCD_SetCursor(uint16_t Xpos, uint16_t Ypos );
+/************************************ Defines *******************************************/
+
+/********************************** Structures ******************************************/
+typedef struct Point {
+    uint16_t x;
+    uint16_t y;
+}Point;
+/********************************** Structures ******************************************/
+
+/************************************ Public Functions  *******************************************/
+
+/*******************************************************************************
+ * Function Name  : LCD_DrawRectangle
+ * Description    : Draw a rectangle as the specified color
+ * Input          : xStart, xEnd, yStart, yEnd, Color
+ * Output         : None
+ * Return         : None
+ * Attention      : None
+ *******************************************************************************/
+void LCD_DrawRectangle(int16_t xStart, int16_t xEnd, int16_t yStart, int16_t yEnd, uint16_t Color);
+
+/******************************************************************************
+* Function Name  : PutChar
+* Description    : Lcd screen displays a character
+* Input          : - Xpos: Horizontal coordinate
+*                  - Ypos: Vertical coordinate
+*                  - ASCI: Displayed character
+*                  - charColor: Character color
+* Output         : None
+* Return         : None
+* Attention      : None
+*******************************************************************************/
+inline void PutChar( uint16_t Xpos, uint16_t Ypos, uint8_t ASCI, uint16_t charColor);
+
+/******************************************************************************
+* Function Name  : LCD_Text
+* Description    : Displays the string
+* Input          : - Xpos: Horizontal coordinate
+*                  - Ypos: Vertical coordinate
+*                  - str: Displayed string
+*                  - charColor: Character color
+* Output         : None
+* Return         : None
+* Attention      : None
+*******************************************************************************/
+void LCD_Text(uint16_t Xpos, uint16_t Ypos, uint8_t *str,uint16_t Color);
+
+/*******************************************************************************
+* Function Name  : LCD_Write_Data_Only
+* Description    : Data writing to the LCD controller
+* Input          : - data: data to be written
+* Output         : None
+* Return         : None
+* Attention      : None
+*******************************************************************************/
 inline void LCD_Write_Data_Only(uint16_t data);
-inline void LCD_Write_Data_Start(void);
+
+/*******************************************************************************
+* Function Name  : LCD_Clear
+* Description    : Fill the screen as the specified color
+* Input          : - Color: Screen Color
+* Output         : None
+* Return         : None
+* Attention      : None
+*******************************************************************************/
+void LCD_Clear(uint16_t Color);
+void LCD_DrawLine(uint16_t Xstart, uint16_t Ystart, uint16_t Xend, uint16_t Yend, uint16_t color);
+
+/******************************************************************************
+* Function Name  : LCD_SetPoint
+* Description    : Drawn at a specified point coordinates
+* Input          : - Xpos: Row Coordinate
+*                  - Ypos: Line Coordinate
+* Output         : None
+* Return         : None
+* Attention      : 18N Bytes Written
+*******************************************************************************/
+void LCD_SetPoint(uint16_t Xpos, uint16_t Ypos, uint16_t color);
+
+/*******************************************************************************
+* Function Name  : LCD_WriteData
+* Description    : LCD write register data
+* Input          : - data: register data
+* Output         : None
+* Return         : None
+* Attention      : None
+*******************************************************************************/
 inline void LCD_WriteData(uint16_t data);
+
+/*******************************************************************************
+* Function Name  : LCD_WriteReg
+* Description    : Reads the selected LCD Register.
+* Input          : None
+* Output         : None
+* Return         : LCD Register Value.
+* Attention      : None
+*******************************************************************************/
+inline uint16_t LCD_ReadReg(uint16_t LCD_reg);
+
+/*******************************************************************************
+* Function Name  : LCD_WriteIndex
+* Description    : LCD write register address
+* Input          : - index: register address
+* Output         : None
+* Return         : None
+* Attention      : None
+*******************************************************************************/
 inline void LCD_WriteIndex(uint16_t index);
 
-/*LCD Graphical Functions*/
-void LCD_SetPoint(uint16_t Xpos, uint16_t Ypos, uint16_t color);
-void LCD_DrawLine(uint16_t Xstart, uint16_t Ystart, uint16_t Xend, uint16_t Yend, uint16_t color);
-void LCD_DrawRectangle(uint16_t Xstart, uint16_t Ystart, uint16_t Xend, uint16_t Yend, uint16_t color);
-void LCD_Clear(uint16_t color);
+/*******************************************************************************
+ * Function Name  : SPISendRecvTPByte
+ * Description    : Send one byte then receive one byte of response from Touchpanel
+ * Input          : uint8_t: byte
+ * Output         : None
+ * Return         : None
+ * Attention      : None
+ *******************************************************************************/
+inline uint8_t SPISendRecvTPByte (uint8_t byte);
+
+/*******************************************************************************
+* Function Name  : SPISendRecvByte
+* Description    : Send one byte then recv one byte of response
+* Input          : uint8_t: byte
+* Output         : None
+* Return         : Recieved value
+* Attention      : None
+*******************************************************************************/
+inline uint8_t SPISendRecvByte(uint8_t byte);
+
+/*******************************************************************************
+* Function Name  : LCD_Write_Data_Start
+* Description    : Start of data writing to the LCD controller
+* Input          : None
+* Output         : None
+* Return         : None
+* Attention      : None
+*******************************************************************************/
+inline void LCD_Write_Data_Start(void);
+
+/*******************************************************************************
+* Function Name  : LCD_ReadData
+* Description    : LCD read data
+* Input          : None
+* Output         : None
+* Return         : return data
+* Attention  : None
+*******************************************************************************/
+inline uint16_t LCD_ReadData();
+
+/*******************************************************************************
+* Function Name  : LCD_WriteReg
+* Description    : Writes to the selected LCD register.
+* Input          : - LCD_Reg: address of the selected register.
+*                  - LCD_RegValue: value to write to the selected register.
+* Output         : None
+* Return         : None
+* Attention      : None
+*******************************************************************************/
+inline void LCD_WriteReg(uint16_t LCD_Reg, uint16_t LCD_RegValue);
+
+/*******************************************************************************
+* Function Name  : LCD_SetCursor
+* Description    : Sets the cursor position.
+* Input          : - Xpos: specifies the X position.
+*                  - Ypos: specifies the Y position.
+* Output         : None
+* Return         : None
+* Attention      : None
+*******************************************************************************/
+inline void LCD_SetCursor(uint16_t Xpos, uint16_t Ypos );
+
+/*******************************************************************************
+* Function Name  : LCD_Init
+* Description    : Configures LCD Control lines, sets whole screen black
+* Input          : bool usingTP: determines whether or not to enable TP interrupt
+* Output         : None
+* Return         : None
+* Attention      : None
+*******************************************************************************/
+void LCD_Init(bool usingTP);
+
+/*******************************************************************************
+ * Function Name  : TP_ReadXY
+ * Description    : Obtain X and Y touch coordinates
+ * Input          : None
+ * Output         : None
+ * Return         : Point structure
+ * Attention      : None
+ *******************************************************************************/
+Point TP_ReadXY();
+
+/*******************************************************************************
+ * Function Name  : TP_ReadX
+ * Description    : Obtain X touch coordinate
+ * Input          : None
+ * Output         : None
+ * Return         : X Coordinate
+ * Attention      : None
+ *******************************************************************************/
+uint16_t TP_ReadX();
+
+/*******************************************************************************
+ * Function Name  : TP_ReadY
+ * Description    : Obtain Y touch coordinate
+ * Input          : None
+ * Output         : None
+ * Return         : Y Coordinate
+ * Attention      : None
+ *******************************************************************************/
+uint16_t TP_ReadY();
+
+/************************************ Public Functions  *******************************************/
 
 
-/*LCD Initialization*/
-void LCD_Init();
 
 
-#endif /* LCD_DRIVERS_H_ */
+#endif /* LCDLIB_H_ */
